@@ -36,16 +36,11 @@ let bombCount = 0;
 let squaresLeft = 0;
 let boardMetadataGlobal = {};
 let gameDifficulty = 'easy';
-const directions = [
-    new Pair(-1, -1), new Pair(-1, 0), new Pair(-1, 1), // Top-left, Top-center, Top-right
-    new Pair(0, -1), new Pair(0, 1), // Left, Right
-    new Pair(1, -1), new Pair(1, 0), new Pair(1, 1)  // Bottom-left, Bottom-center, Bottom-right
-];
 
 const checkNeigh = [
-    new Pair(-1, 0), // Top-left, Top-center, Top-right
-    new Pair(0, -1), new Pair(0, 1), // Left, Right
-    new Pair(1, 0)  // Bottom-left, Bottom-center, Bottom-right
+    new Pair(-1, 0),
+    new Pair(0, -1), new Pair(0, 1),
+    new Pair(1, 0)  
 ];
 
 /*
@@ -56,8 +51,7 @@ const checkNeigh = [
 let bombProbability = 3;
 let maxProbability = 15;
 
-function minesweeperGameBootstrapper(rowCount, colCount) {
-    console.log(rowCount, colCount);
+function minesweeperGameBootstrapper(difficulty){
     let easy = {
         'rowCount': 9,
         'colCount': 9,
@@ -65,21 +59,26 @@ function minesweeperGameBootstrapper(rowCount, colCount) {
     // TODO you can declare here the medium and expert difficulties
 
     let medium = {
-        'rowcount': 15,
+        'rowCount': 15,
         'colCount': 15
     }
 
     let hard = {
-        'rowcount': 20,
+        'rowCount': 20,
         'colCount': 20
     }
 
-    if (rowCount == null && colCount == null) {
+    if (difficulty == null) {
         // TODO have a default difficulty
         rowCount = easy.rowCount;
         colCount = easy.colCount;
     } else {
-        generateBoard({ 'rowCount': rowCount, 'colCount': colCount });
+        if(difficulty === 'easy')
+            generateBoard({ 'rowCount': easy.rowCount, 'colCount': easy.colCount });
+        else if(difficulty === 'medium')
+            generateBoard({ 'rowCount': medium.rowCount, 'colCount': medium.colCount });
+        else if(difficulty === 'hard')
+            generateBoard({ 'rowCount': medium.rowCount, 'colCount': medium.colCount });
     }
 }
 
@@ -247,7 +246,6 @@ function uncoverTiles(row, col) {
         const newCol = parseInt(col, 10) + coordinate.y;
 
         if (newRow >= 0 && newRow < boardMetadataGlobal.rowCount && newCol >= 0 && newCol < boardMetadataGlobal.colCount) {
-            //console.log(`${newRow} ${newCol} ${openedSquares[newRow][newCol]} ${board[newRow][newCol].hasBomb}`);
             if (openedSquares[newRow][newCol] == false && board[newRow][newCol].hasBomb == false) {
 
                 uncoverTiles(newRow, newCol);
@@ -257,14 +255,11 @@ function uncoverTiles(row, col) {
 }
 
 function handleLoss() {
-    // TODO
-    console.log("u lost");
     var myModal = new bootstrap.Modal(document.getElementById('lostModal'));
     myModal.show();
 }
 
 function handleWin() {
-    console.log("u won");
     var myModal = new bootstrap.Modal(document.getElementById('winModal'));
     myModal.show();
 }
@@ -273,20 +268,19 @@ function handleWin() {
 // Listen for difficulty change and update the grid accordingly
 document.getElementById('difficulty').addEventListener('change', function () {
     var selectedDifficulty = this.value;
-    console.log(difficulty);
     gameDifficulty = selectedDifficulty;
     let size = updateGrid(selectedDifficulty);
-    minesweeperGameBootstrapper(Math.sqrt(size), Math.sqrt(size));
+    minesweeperGameBootstrapper(gameDifficulty);
 });
 
 document.getElementById('modal-button').addEventListener('click', function () {
-    updateGrid('easy');
-    minesweeperGameBootstrapper(9, 9);
+    updateGrid(gameDifficulty);
+    minesweeperGameBootstrapper(gameDifficulty);
 });
 
 document.getElementById('modal-button-lost').addEventListener('click', function () {
     updateGrid(gameDifficulty);
-    minesweeperGameBootstrapper(9, 9);
+    minesweeperGameBootstrapper(gameDifficulty);
 });
 
 // Function to create and update the grid
@@ -413,7 +407,7 @@ document.getElementById('decreaseMax').addEventListener('click', function() {
 // Initialize with the Easy grid on page load
 window.onload = function () {
     updateGrid('easy');
-    minesweeperGameBootstrapper(9, 9);
+    minesweeperGameBootstrapper('easy');
 };
 
 
